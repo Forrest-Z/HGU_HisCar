@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <opencv2/highgui/highgui.hpp>
-#include "DGPS.h"
+#include "include/DGPS.h"
 
 #define INF 10000
 #define NIL -1
@@ -32,10 +32,10 @@ int main()
 	input.push_back(c);
 	input.push_back(d);
 
-	//ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+	//ÇÔ¼ö ½ÇÇà
 	FloydWarshall(&input);
 	
-	//ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ È®ï¿½ï¿½
+	//Ãâ·Â °á°ú È®ÀÎ
 	for (int i = 0; i < input.size() ; i++)
 	{
 		cout << input.at(i) << endl;
@@ -58,14 +58,15 @@ void FloydWarshall(vector<char*>*input)
 	int lineNum = 0;
 	int index = 0;
 
-	vector<vector<pair<double, int > > > FW;
-	stack<int> path;
+	vector<vector<pair<double, int>>> FW;
+	//stack<int> path;
+	vector<int> path;								//stack
 
-	GPS_DD* point_arr;							//ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½è¿­
+	GPS_DD* point_arr;							//ÁÂÇ¥µé ÀúÀåÇÏ´Â ¹è¿­
 
 	double total_distance = 0.0;
 
-	/*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ä¾ï¿½*/
+	/*ÆÄÀÏÀÇ ¶óÀÎ ¼ö ÆÄ¾Ç*/
 	lineNum = getlineNum(f_input1);
 
 	/*double graph[SIZE][SIZE] = {
@@ -85,7 +86,7 @@ void FloydWarshall(vector<char*>*input)
 		{ INF,   INF,   INF,   INF,   INF,   1,     1,    INF,    INF,    INF,    INF,     INF,     1,     0 }
 	};*/
 
-	/*ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½*/
+	/*ÀÎÁ¢ Çà·Ä µ¿Àû ÇÒ´ç*/
 	double **graph = new double*[lineNum];
 	
 	for (int i = 0; i < lineNum; i++)
@@ -94,7 +95,7 @@ void FloydWarshall(vector<char*>*input)
 		memset(graph[i], 0, sizeof(double)*lineNum);
 	}
 
-	/*ï¿½Ê±ï¿½È­*/
+	/*ÃÊ±âÈ­*/
 	for (int i = 0; i < lineNum; i++)
 	{
 		for (int j = 0; j < lineNum; j++)
@@ -116,10 +117,10 @@ void FloydWarshall(vector<char*>*input)
 		string*str = strSplit(edge, " ");
 		int start = stoi(str[0]);
 		int end = stoi(str[1]);
-		AddEdge(graph, start, end);										// ï¿½ÌºÎºï¿½ ï¿½Ô¼ï¿½ ï¿½Ñ¾î°¡ï¿½ï¿½ ï¿½Îºï¿½ ï¿½ï¿½ ï¿½Èµï¿½
+		AddEdge(graph, start, end);										// ÀÌºÎºÐ ÇÔ¼ö ³Ñ¾î°¡´Â ºÎºÐ Àß ¾ÈµÊ
 	}
 
-	/*ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ È®ï¿½ï¿½*/
+	/*ÀÎÁ¢ Çà·Ä È®ÀÎ*/
 	for (int i = 0; i < lineNum; i++)
 	{
 		for (int j = 0; j < lineNum; j++)
@@ -127,20 +128,20 @@ void FloydWarshall(vector<char*>*input)
 			cout << endl;
 	}
 
-	/*FW(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) ï¿½Ê±ï¿½È­*/
+	/*FW(ÁöÁ¡ »çÀÌÀÇ °Å¸® ¹Ø °æÀ¯Áö Á¤º¸ Æ÷ÇÔ) ÃÊ±âÈ­*/
 	FW.resize(lineNum + 1);
 	for (int i = 0; i < lineNum; i++) {
 		for (int j = 0; j < lineNum; j++) {
-			FW[i].push_back(make_pair(INF, NIL));								//FWï¿½ï¿½ ï¿½ï¿½ï¿½ INF(ï¿½ï¿½ï¿½ï¿½), NIL(-1)ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
-			if (i == j)													//ï¿½ï¿½ i==jï¿½ï¿½ ï¿½ï¿½ï¿½ FW[i][j]ï¿½ï¿½ firstï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ñ´ï¿½.
+			FW[i].push_back(make_pair(INF, NIL));								//FW¸¦ ¸ðµÎ INF(¹«ÇÑ), NIL(-1)·Î ÃÊ±âÈ­ÇÑ´Ù.
+			if (i == j)													//´Ü i==jÀÏ °æ¿ì FW[i][j]ÀÇ first¿¡ 0À¸·Î ÃÊ±âÈ­ ÇÑ´Ù.
 				FW[i][j].first = 0;
 		}
 	}
 
-	/*ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½Ò´ï¿½ */
+	/*¶óÀÎ ¼ö¸¸Å­ µ¿ÀûÇÒ´ç */
 	point_arr = new GPS_DD[lineNum];
 	
-	/*textï¿½ï¿½ ï¿½ï¿½ GPS arrayï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½*/
+	/*textÀÇ °ª GPS array¿¡ ÀúÀå*/
 	while (getline(f_input, line)) {
 
 		string *str = strSplit(line, " ");
@@ -151,7 +152,7 @@ void FloydWarshall(vector<char*>*input)
 	}
 
 
-	/*ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ ï¿½Ô·ï¿½*/
+	/*ÁÂÇ¥ »çÀÌÀÇ °Å¸® ÀÔ·Â*/
 	for (int i = 0; i < lineNum; i++) {
 		for (int j = 0; j < lineNum; j++) {
 			if (graph[i][j] != INF && graph[i][j] != 0.0)
@@ -172,100 +173,153 @@ void FloydWarshall(vector<char*>*input)
 		}
 	}
 
-	/*graph(ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½Å¸ï¿½) ï¿½ï¿½ï¿½*/
-	for (int i = 0; i < lineNum; i++) {
-		printf("  %c    ", i + 65);
-	}
-	cout << endl;
-	for (int i = 0; i < lineNum; i++) {
-		printf("%c ", i + 65);
-		for (int j = 0; j < lineNum; j++) {
 
-			cout << graph[i][j] << "m" << " ";
-
-		}
-		cout << endl;
-	}
-
-	/*ï¿½ï¿½Ç¥ ï¿½ï¿½ï¿½ï¿½*/
+	/*ÁÂÇ¥ ÀúÀå*/
 	for (int i = 0; i < lineNum; i++) {
 		for (int j = 0; j < lineNum; j++) {
-			FW[i][j].first = graph[i][j];								//FWï¿½ï¿½ firstï¿½ï¿½ graph(i->jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½Ô·ï¿½
-			if (FW[i][j].first != INF && FW[i][j].first != 0)				// i->jï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö°ï¿½ i==jï¿½ï¿½ ï¿½Æ´Ò¶ï¿½ 
-				FW[i][j].second = i;								//FW[i][j]ï¿½ï¿½ secondï¿½ï¿½ï¿½ï¿½ iï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
+			FW[i][j].first = graph[i][j];								//FWÀÇ first¿¡ graph(i->j±îÁöÀÇ °Å¸®Á¤º¸)¸¦ ÀÔ·Â
+			if (FW[i][j].first != INF && FW[i][j].first != 0)				// i->j·Î °¥¼ö ÀÖ°í i==j°¡ ¾Æ´Ò¶§ 
+				FW[i][j].second = i;								//FW[i][j]ÀÇ second¿¡´Â i·Î ÀúÀå(Ãâ¹ß Á¤º¸)
 		}
 	}
 
-	/*ï¿½Ö´ï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½*/
+	/*ÃÖ´Ü °Å¸® °è»ê*/
 	for (int i = 0; i < lineNum; i++) {
 		for (int j = 0; j < lineNum; j++) {
 			for (int k = 0; k < lineNum; k++) {
-				if (FW[k][j].first > FW[k][i].first + FW[i][j].first) {		// iï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¶ï¿½
-					FW[k][j].first = FW[k][i].first + FW[i][j].first;			// k->jï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½	
-					FW[k][j].second = FW[i][j].second;				// i ï¿½ï¿½ï¿½ï¿½ kï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½Ø´ï¿½.(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½)
+				if (FW[k][j].first > FW[k][i].first + FW[i][j].first) {		// i¸¦ °ÅÃÆÀ»¶§°¡ ´õ ÃÖ´Ü °æ·ÎÀÏ¶§
+					FW[k][j].first = FW[k][i].first + FW[i][j].first;			// k->jÀÇ °Å¸®¸¦ »õ·Î¿î °ªÀ¸·Î ¼öÁ¤ÇØÁØ´Ù	
+					FW[k][j].second = FW[i][j].second;				// i °ªÀ» k¿¡ ³Ö¾îÁØ´Ù.(°æ·ÎÁö¸¦ Ç¥½ÃÇØÁÖ´Â µí)
 				}
 			}
 		}
 	}
 
-	/*ï¿½Ô·ï¿½*/
-	char* depart_string;								//ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ char ï¿½ï¿½ï¿½ï¿½
-	char* arrive_string;								//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ char ï¿½ï¿½ï¿½ï¿½
-	int depart = -1, arrive = -1;							//ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-	int count = 0;									//ï¿½ßºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-	int waypoint_num = 0;								//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
-	int waypoints[SIZE];								//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­
-	int waypoint = -1;									//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-	int i = 0;
-	string conv_tostring;
+	/*graph(ÁÂÇ¥°£ °Å¸®) Ãâ·Â*/
+	for (int i = 0; i < lineNum; i++) {
+		printf("  %d    ", i);
+	}
+	cout << endl;
+	for (int i = 0; i < lineNum; i++) {
+		printf("%d ", i);
+		for (int j = 0; j < lineNum; j++) {
 
+			cout << graph[i][j] << "m" << "("<< FW[i][j].second <<")" << " ";
+
+		}
+		cout << endl;
+	}
+
+	/*ÀÔ·Â*/
+	char* depart_string;								//Ãâ¹ßÁö ÀÔ·Â ¹ÞÀ» char º¯¼ö
+	char* arrive_string;								//µµÂøÁö ÀÔ·Â ¹ÞÀ» char º¯¼ö
+	int depart = -1, arrive = -1;							//Ãâ¹ßÁö, µµÂøÁöÀÇ ¹®ÀÚ -> ¼ýÀÚ º¯¼ö
+	int count = 0;									//Áßº¹µÈ °æÀ¯ÁöÀÇ °¹¼ö
+	int waypoint_num = 0;								//°æÀ¯ÁöÀÇ ¼ö
+	int waypoints[SIZE];								//°æÀ¯Áö¸¦ ´ãÀ» ¹è¿­
+	int waypoint = -1;									//°æÀ¯ÁöÀÇ ¹®ÀÚ -> ¼ýÀÚ º¯¼ö
+	int i = 0;
+	int new_second = 0;
+	string conv_tostring;
+	path.clear();
 	vector<string> output;
 
-	/*Input vector ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½*/
-	depart_string = (*input).front();							//Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ char -> intï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ : " << depart_string << endl;
+	/*Input vector Á¤º¸ ÃßÃâ*/
+	depart_string = (*input).front();							//Ã³À½ ¿ø¼Ò(Ãâ¹ßÁö) ÀúÀå char -> intÇüÀ¸·Î
+	cout << "Ãâ¹ßÁö´Â : " << depart_string << endl;
 	depart = atoi(depart_string);
 
-	arrive_string = (*input).back();							//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ char -> intï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ : " << arrive_string << endl;
+	arrive_string = (*input).back();							//¸¶Áö¸· ¿ø¼Ò(µµÂøÁö) ÀúÀå char -> intÇüÀ¸·Î
+	cout << "µµÂøÁö´Â : " << arrive_string << endl;
 	arrive = atoi(arrive_string);
 
-	waypoint_num = (*input).size() - 2;						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä¾ï¿½
-	cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ : " << waypoint_num << endl;
+	waypoint_num = (*input).size() - 2;						//°æÀ¯Áö °¹¼ö ÆÄ¾Ç
+	cout << "°æÀ¯Áö °¹¼ö : " << waypoint_num << endl;
 
-	for (i = 0; i < waypoint_num; i++)					//Inputï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ waypointsï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ char -> intï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	for (i = 0; i < waypoint_num; i++)					//Input¿¡¼­ °æÀ¯Áö¸¸ µû·Î »©¼­ waypoints¿¡ ÀúÀå char -> intÇüÀ¸·Î
 	{
 		waypoints[i] = atoi((*input).at(i + 1));
 	}
 
 	for (i = 0; i < waypoint_num; i++) {
-		cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ " << i + 1 << ": " << waypoints[i] << endl;
+		cout << "°æÀ¯Áö " << i + 1 << ": " << waypoints[i] << endl;
 	}
 
 	int temp = 0;
 
+	/*ÀÔ·ÂÇÑ °æÀ¯ÁöºÎÅÍ arrive±îÁö »çÀÌÀÇ °æÀ¯ÁöµéÀ» path¿¡ ÀúÀå*/
 
-	/*ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ arriveï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ pathï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½*/
+	for (int a = waypoint_num - 1; a >= 0; a--) {					//°æÀ¯Áö°¡ ÀÖÀ»¶§¸¸(waypoint_num !=0) ¹Ýº¹
+		    						
+		path.push_back(arrive);										//pathÀÇ ¸¶Áö¸·¿¡ µµÂøÁöÀÇ °ª(arrive) push
+		temp = waypoints[a];										//waypoints ¸¶Áö¸· ºÎÅÍ ÇÏ³ª¾¿ °æÀ¯Áö Á¤º¸¸¦ temp¿¡ ³Ö´Â´Ù.
+		while (temp != FW[temp][arrive].second) {						//FW¾È¿¡ ÀÖ´Â temp(ÀÔ·ÂÇÑ °æÀ¯Áö)->arrive ±îÁöÀÇ °æÀ¯Áö°¡ ´õ ÀÖÀ»¶§¸¸(second != 1)ÀÌ¸é ¹Ýº¹
+			int test = path.at(path.size() - 1);
+			cout << test << endl;
+			if (path.at(path.size() - 1) == FW[temp][arrive].second)
+			{
+				
+				double min = FW[depart][0].first + FW[0][arrive].first;
+				double secondMin = min;
 
-	for (int a = waypoint_num - 1; a >= 0; a--) {					//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(waypoint_num !=0) ï¿½Ýºï¿½
+				for (int i = 0; i < lineNum;i++)
+				{
+					if (FW[temp][i].first + FW[i][arrive].first < min)
+					{
+						secondMin = min;
+						min = FW[temp][i].first + FW[i][arrive].first;
+					}
+					else if ((min < (FW[temp][i].first + FW[i][arrive].first) && (FW[temp][i].first + FW[i][arrive].first) < secondMin) || min == secondMin)
+					{
+						secondMin = FW[temp][i].first + FW[i][arrive].first;
+						new_second = i;
+					}
+				}
+				arrive = new_second;
+				path.push_back(arrive);
 
-		path.push(arrive);				    						//pathï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(arrive) push
+			}
+			else
+			{
+				arrive = FW[temp][arrive].second;						//arrive±îÁöÀÇ °æÀ¯Áö(temp)ÀÇ second°ª ÀúÀå 
+ 				path.push_back(arrive);
 
-		temp = waypoints[a];										//waypoints ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ tempï¿½ï¿½ ï¿½Ö´Â´ï¿½.
-		while (temp != FW[temp][arrive].second) {						//FWï¿½È¿ï¿½ ï¿½Ö´ï¿½ temp(ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)->arrive ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(second != 1)ï¿½Ì¸ï¿½ ï¿½Ýºï¿½
-
-			arrive = FW[temp][arrive].second;						//arriveï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(temp)ï¿½ï¿½ secondï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
-			path.push(arrive);										//ï¿½ï¿½ï¿½Î¿ï¿½ arriveï¿½ï¿½ pathï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			}
 		}
-		arrive = temp;											//ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(temp)ï¿½ï¿½ arriveï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+		arrive = temp;											//ÀÔ·ÂÇÑ °æÀ¯Áö(temp)¸¦ arrive¿¡ ÀúÀå
 	}
-	path.push(arrive);												// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ pathï¿½ï¿½ push
+	path.push_back(arrive);
 
+	/*depart->arrive »çÀÌ¿¡ ÃÖ´Ü°Å¸®°¡ µÇ´Â °æÀ¯Áö°¡ ÀÖ´ÂÁö È®ÀÎ*/
+	while (depart != FW[depart][arrive].second) {						//depart ºÎÅÍ arrive±îÁö °æÀ¯Áö°¡ ÀÖÀ»¶§ ¹Ýº¹
+		
+		if (path.at(path.size() - 2) == FW[depart][arrive].second)
+		{
+			double min = FW[depart][0].first + FW[0][arrive].first;
+			double secondMin = min;
 
-	/*depart->arrive ï¿½ï¿½ï¿½Ì¿ï¿½ ï¿½Ö´Ü°Å¸ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½*/
-	while (depart != FW[depart][arrive].second) {						//depart ï¿½ï¿½ï¿½ï¿½ arriveï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ýºï¿½
-		arrive = FW[depart][arrive].second;
-		path.push(arrive);											//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ pathï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			for (int i = 0; i < lineNum;i++)
+			{
+				if (FW[depart][i].first + FW[i][arrive].first < min)
+				{
+					secondMin = min;
+					min = FW[depart][i].first + FW[i][arrive].first;
+				}
+				else if ((min < (FW[depart][i].first + FW[i][arrive].first) && (FW[depart][i].first + FW[i][arrive].first) < secondMin) || min == secondMin)
+				{
+					secondMin = FW[depart][i].first + FW[i][arrive].first;
+					new_second = i;
+				}
+			}
+			arrive = new_second;
+			path.push_back(arrive);
+
+		}
+		else
+		{
+			arrive = FW[depart][arrive].second;
+			path.push_back(arrive);
+		}
 	}
 
 
@@ -274,25 +328,26 @@ void FloydWarshall(vector<char*>*input)
 
 	while (!path.empty()) {
 
-		/*Pointï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½Ì¸ï¿½*/
+		/*PointÀÇ ÁÂÇ¥ ÀÌ¸§*/
 		printf("%d- ", depart);
 
-		/*Pointï¿½ï¿½ ï¿½ï¿½Ç¥ ï¿½Ö¼ï¿½*/
+		/*PointÀÇ ÁÂÇ¥ ÁÖ¼Ò*/
 		printf(" point = (%lf, %lf) \n", point_arr[depart].lon, point_arr[depart].lat);
 
-		total_distance += graph[depart][path.top()];
+		total_distance += graph[depart][path.back()];
 		printf("%lfm\n", total_distance);
 
-		depart = path.top();
-		printf("-%d\n", path.top());
+		//depart = path.top();
+		depart = path.back();
+		printf("-%d\n", path.back());
 
 		conv_tostring = to_string(depart);
 		output.push_back(conv_tostring);
 
 		cout << endl;
 
-		path.pop();
-		
+		//path.pop();
+		path.pop_back();
 	}
 
 	(*input).clear();
@@ -330,24 +385,24 @@ int getlineNum(ifstream &infile)
 
 string* strSplit(string strOrigin, string strTok)
 {
-	int cutAt;													// ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡
-	int index = 0;												// ï¿½ï¿½ï¿½Ú¿ï¿½ ï¿½Îµï¿½ï¿½ï¿½
-	string* strResult = new string[25];							// ï¿½ï¿½ï¿½ return ï¿½ï¿½ï¿½ï¿½
+	int cutAt;													// ÀÚ¸£´Â À§Ä¡
+	int index = 0;												// ¹®ÀÚ¿­ ÀÎµ¦½º
+	string* strResult = new string[25];							// °á°ú return º¯¼ö
 
-	/*strTokï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ýºï¿½*/
+	/*strTokÀ» Ã£À» ¶§±îÁö ¹Ýº¹*/
 	while ((cutAt = strOrigin.find_first_of(strTok)) != strOrigin.npos)
 	{
-		/*ï¿½Ú¸ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½*/
+		/*ÀÚ¸£´Â À§Ä¡°¡ 0º¸´Ù Å©¸é*/
 		if (cutAt > 0)					
 		{
-			strResult[index++] = strOrigin.substr(0, cutAt);			// ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ß°ï¿½
+			strResult[index++] = strOrigin.substr(0, cutAt);			// °á°ú ¹è¿­¿¡ Ãß°¡
 		}
-		strOrigin = strOrigin.substr(cutAt + 1);					// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¸ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		strOrigin = strOrigin.substr(cutAt + 1);					// ¿øº»Àº ÀÚ¸¥ ºÎºÐÀ» Á¦¿ÜÇÑ ³ª¸ÓÁö
 	}
-	/*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+	/*¿øº»ÀÌ ¾ÆÁ÷ ³²¾ÒÀ¸¸é*/
 	if (strOrigin.length() > 0) 
 	{
-		strResult[index++] = strOrigin.substr(0, cutAt);				// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ß°ï¿½
+		strResult[index++] = strOrigin.substr(0, cutAt);				// ³ª¸ÓÁö¸¦ °á°ú ¹è¿­¿¡ Ãß°¡
 	}
 
 	return strResult;

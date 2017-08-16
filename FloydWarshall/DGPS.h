@@ -28,7 +28,7 @@ typedef struct GPS_DD{
 
 typedef struct DMS{
 	int degree;
-	int min;
+	double min;
 	double sec;
 }DMS;
 

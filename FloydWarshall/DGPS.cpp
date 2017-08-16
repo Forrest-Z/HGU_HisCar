@@ -1,6 +1,6 @@
-#include <math.h>
-#include <float.h>
-#include "DGPS.h"
+#include<math.h>
+#include<float.h>
+#include "include\DGPS.h"
 
 
 GPS_DMS GPS_DD2DMS(GPS_DD input)
@@ -66,7 +66,7 @@ double GPS_DD2Dist(GPS_DD DD_A, GPS_DD DD_B) {
 }
 
 double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
-	// ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½Ï±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½)
+	// µÎ Á¡ »çÀÌ ¹æÀ§°¢(ºÏ±ØÁ¡ ±âÁØ,ÁøºÏ)
 
 	double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
 	double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
@@ -81,17 +81,17 @@ double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
 		* cos(Dest_Lat_radian)
 		* cos(Cur_Lon_radian - Dest_Lon_radian));
 
-	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ´ï¿½.(ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½Ìµï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ 
-	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½È°ï¿½ï¿½Ì´ï¿½.
+	// ¸ñÀûÁö ÀÌµ¿ ¹æÇâÀ» ±¸ÇÑ´Ù.(ÇöÀç ÁÂÇ¥¿¡¼­ ´ÙÀ½ ÁÂÇ¥·Î ÀÌµ¿ÇÏ±â À§ÇØ¼­´Â 
+	//¹æÇâÀ» ¼³Á¤ÇØ¾ß ÇÑ´Ù. ¶óµð¾È°ªÀÌ´Ù.
 	double radian_bearing = acos((sin(Dest_Lat_radian) - sin(Cur_Lat_radian)
 		* cos(radian_distance))
 		/ (cos(Cur_Lat_radian) * sin(radian_distance)));
 
 
-	if (isnan(radian_bearing))//exception handling
+	if (_isnan(radian_bearing))//exception handling
 		radian_bearing = 0;
 
-	// acosï¿½ï¿½ ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ï¿½ï¿½ xï¿½ï¿½ 360ï¿½Ð¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´ï¿½ radian(È£ï¿½ï¿½)ï¿½ï¿½ï¿½Ì´ï¿½.
+	// acosÀÇ ÀÎ¼ö·Î ÁÖ¾îÁö´Â x´Â 360ºÐ¹ýÀÇ °¢µµ°¡ ¾Æ´Ñ radian(È£µµ)°ªÀÌ´Ù.
 	double true_bearing = 0;
 
 
@@ -107,7 +107,7 @@ double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
 }
 
 
-//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ È¯ï¿½ï¿½
+//¹æÀ§°¢°ú °Å¸®¸¦ ÀÌ¿ëÇÑ ÁÂÇ¥ È¯»ê
 GPS_DD DistDeg2GPS_DD(GPS_DD DD_A, double distance, double degree)
 {
 	if (distance == 0)
