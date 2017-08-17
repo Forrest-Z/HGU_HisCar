@@ -68,54 +68,28 @@ double GPS_DD2Dist(GPS_DD DD_A, GPS_DD DD_B) {
 }
 
 double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
-	// µÎ Á¡ »çÀÌ ¹æÀ§°¢(ºÏ±ØÁ¡ ±âÁØ,ÁøºÏ)
+   // ë‘ ì  ì‚¬ì´ ë°©ìœ„ê°(ë¶ê·¹ì  ê¸°ì¤€,ì§„ë¶)
 
-	double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
-	double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
-	
-	double Dest_Lon_radian = DD_B.lon * Deg2Rad_Multi;
-	double Dest_Lat_radian = DD_B.lat * Deg2Rad_Multi;
+   double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
+   double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
 
-
-	// radian distance
-	double radian_distance = 0;
-	radian_distance = acos(sin(Cur_Lat_radian)
-		* sin(Dest_Lat_radian) + cos(Cur_Lat_radian)
-		* cos(Dest_Lat_radian)
-		* cos(Cur_Lon_radian - Dest_Lon_radian));
-
-	// ¸ñÀûÁö ÀÌµ¿ ¹æÇâÀ» ±¸ÇÑ´Ù.(ÇöÀç ÁÂÇ¥¿¡¼­ ´ÙÀ½ ÁÂÇ¥·Î ÀÌµ¿ÇÏ±â À§ÇØ¼­´Â 
-	//¹æÇâÀ» ¼³Á¤ÇØ¾ß ÇÑ´Ù. ¶óµğ¾È°ªÀÌ´Ù.
-	double radian_bearing = acos((sin(Dest_Lat_radian) - sin(Cur_Lat_radian)
-		* cos(radian_distance))
-		/ (cos(Cur_Lat_radian) * sin(radian_distance)));
+   double Dest_Lon_radian = DD_B.lon * Deg2Rad_Multi;
+   double Dest_Lat_radian = DD_B.lat * Deg2Rad_Multi;
 
 
-	if (_isnan(radian_bearing))//exception handling
-		radian_bearing = 0;
+   double diff_lon = Dest_Lon_radian - Cur_Lon_radian;
 
-	// acosÀÇ ÀÎ¼ö·Î ÁÖ¾îÁö´Â x´Â 360ºĞ¹ıÀÇ °¢µµ°¡ ¾Æ´Ñ radian(È£µµ)°ªÀÌ´Ù.
-	double true_bearing = 0;
+   double x = (cos(Cur_Lat_radian)*sin(Dest_Lat_radian)) - (sin(Cur_Lat_radian)*cos(Dest_Lat_radian)*cos(diff_lon));
+   double y = sin(diff_lon)*cos(Dest_Lat_radian);
+   
+   double degree = atan2(y, x)*Rad2Deg_Multi;
 
-
-	if (sin(Dest_Lon_radian - Cur_Lon_radian) < 0) {
-		true_bearing = radian_bearing * Rad2Deg_Multi;
-		true_bearing = 360 - true_bearing;
-
-		if (true_bearing == 360)
-		{
-			true_bearing = 0;
-		}
-	}
-	else {
-		true_bearing = radian_bearing * Rad2Deg_Multi;
-	}
-
-	return true_bearing;
+   return (degree >= 0) ? degree : (degree + 360);
+   
 }
 
 
-//¹æÀ§°¢°ú °Å¸®¸¦ ÀÌ¿ëÇÑ ÁÂÇ¥ È¯»ê
+//ë°©ìœ„ê°ê³¼ ê±°ë¦¬ë¥¼ ì´ìš©í•œ ì¢Œí‘œ í™˜ì‚°
 GPS_DD DistDeg2GPS_DD(GPS_DD DD_A, double distance, double degree)
 {
 	if (distance == 0)
@@ -148,7 +122,7 @@ GPS_DD DistDeg2GPS_DD(GPS_DD DD_A, double distance, double degree)
 
 }
 
-//ÀÚºÏ ±âÁØ °¢À» ÁøºÏ ±âÁØ °¢À¸·Î º¯È¯ 
+//ìë¶ ê¸°ì¤€ ê°ì„ ì§„ë¶ ê¸°ì¤€ ê°ìœ¼ë¡œ ë³€í™˜ 
 double DegreeMag2True(double degree)
 {
 	degree = degree - Deviation_Angle;
@@ -160,7 +134,7 @@ double DegreeMag2True(double degree)
 	return degree;
 }
 
-//ÀÚºÏ ±âÁØ °¢À» ÁøºÏ ±âÁØ °¢À¸·Î º¯È¯
+//ìë¶ ê¸°ì¤€ ê°ì„ ì§„ë¶ ê¸°ì¤€ ê°ìœ¼ë¡œ ë³€í™˜
 double DegreeTrue2Mag(double degree)
 {
 
