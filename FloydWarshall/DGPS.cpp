@@ -87,7 +87,53 @@ double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
    return (degree >= 0) ? degree : (degree + 360);
    
 }
+/*
+	double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
+	
 
+	double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
+	double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
+	
+	double Dest_Lon_radian = DD_B.lon * Deg2Rad_Multi;
+	double Dest_Lat_radian = DD_B.lat * Deg2Rad_Multi;
+
+
+	// radian distance
+	double radian_distance = 0;
+	radian_distance = acos(sin(Cur_Lat_radian)
+		* sin(Dest_Lat_radian) + cos(Cur_Lat_radian)
+		* cos(Dest_Lat_radian)
+		* cos(Cur_Lon_radian - Dest_Lon_radian));
+
+	
+	double radian_bearing = acos((sin(Dest_Lat_radian) - sin(Cur_Lat_radian)
+		* cos(radian_distance))
+		/ (cos(Cur_Lat_radian) * sin(radian_distance)));
+
+
+	if (_isnan(radian_bearing))//exception handling
+		radian_bearing = 0;
+
+	
+	double true_bearing = 0;
+
+
+	if (sin(Dest_Lon_radian - Cur_Lon_radian) < 0) {
+		true_bearing = radian_bearing * Rad2Deg_Multi;
+		true_bearing = 360 - true_bearing;
+
+		if (true_bearing == 360)
+		{
+			true_bearing = 0;
+		}
+	}
+	else {
+		true_bearing = radian_bearing * Rad2Deg_Multi;
+	}
+
+	return true_bearing;
+}
+*/
 
 //방위각과 거리를 이용한 좌표 환산
 GPS_DD DistDeg2GPS_DD(GPS_DD DD_A, double distance, double degree)
