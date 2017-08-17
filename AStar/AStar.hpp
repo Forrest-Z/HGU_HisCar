@@ -9,6 +9,8 @@ For more information visit https://opensource.org/licenses/ISC.
 #include <vector>
 #include <functional>
 #include <set>
+#include <cstdlib>
+#include <cmath>
 
 namespace AStar
 {
