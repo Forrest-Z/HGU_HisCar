@@ -10,7 +10,7 @@
 using namespace std;
 using namespace cv;
 
-int interest_y = 168;  // mono.avi = 168  // school = 200 
+int interest_y = 200;  // mono.avi = 168  // school = 200 
 int interest_x = 0;
 
 void findandDrawContour(Mat& roi, char* windowName, int type);
