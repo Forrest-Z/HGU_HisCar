@@ -1,0 +1,190 @@
+
+#include<math.h>
+#include<float.h>
+#include"DGPS.h"
+
+
+GPS_DMS GPS_DD2DMS(GPS_DD input)
+{
+	GPS_DMS output;
+
+	output.lon.degree = (int)input.lon;
+	output.lon.min = (int)((input.lon - output.lon.degree) * 60);
+	output.lon.sec = (((input.lon - output.lon.degree) * 60) - output.lon.min) * 60;
+
+	output.lat.degree = (int)input.lat;
+	output.lat.min = (int)((input.lat - output.lat.degree) * 60);
+	output.lat.sec = (((input.lat - output.lat.degree) * 60) - output.lat.min) * 60;
+
+	return output;
+}
+
+GPS_DD GPS_DMS2DD(GPS_DMS input)
+{
+	GPS_DD output;
+
+	output.lon = input.lon.degree + (input.lon.min / 60) + (input.lon.sec / 3600);
+	output.lat = input.lat.degree + (input.lat.min / 60) + (input.lat.sec / 3600);
+
+	return output;
+}
+
+GPS_DMS GPS_DMS_Diff(GPS_DMS A, GPS_DMS B)
+{
+	GPS_DMS diff;
+
+	diff.lon.degree = A.lon.degree - B.lon.degree;
+	diff.lon.min = A.lon.min - B.lon.min;
+	diff.lon.sec = A.lon.sec - B.lon.sec;
+
+	diff.lat.degree = A.lat.degree - B.lat.degree;
+	diff.lat.min = A.lat.min - B.lat.min;
+	diff.lat.sec = A.lat.sec - B.lat.sec;
+
+	return diff;
+}
+
+
+//distance(meter),degree(degree)
+double GPS_DD2Dist(GPS_DD DD_A, GPS_DD DD_B) {
+
+	if (IsSamePoint(DD_A,DD_B))
+	{
+		return 0;
+	}
+
+	double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
+	double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
+	
+	double Dest_Lon_radian = DD_B.lon * Deg2Rad_Multi;
+	double Dest_Lat_radian = DD_B.lat * Deg2Rad_Multi;
+	
+
+	double diff_lon = Dest_Lon_radian - Cur_Lon_radian;
+	double distance = acos(sin(Cur_Lat_radian)*sin(Dest_Lat_radian) + cos(Cur_Lat_radian)
+		*cos(Dest_Lat_radian)*cos(diff_lon))*Earth_R;
+
+	return distance * 1000;
+}
+
+double GPS_DD2Deg(GPS_DD DD_A, GPS_DD DD_B) {
+	// 두 점 사이 방위각(북극점 기준,진북)
+
+	double Cur_Lon_radian = DD_A.lon * Deg2Rad_Multi;
+	double Cur_Lat_radian = DD_A.lat * Deg2Rad_Multi;
+	
+	double Dest_Lon_radian = DD_B.lon * Deg2Rad_Multi;
+	double Dest_Lat_radian = DD_B.lat * Deg2Rad_Multi;
+
+
+	// radian distance
+	double radian_distance = 0;
+	radian_distance = acos(sin(Cur_Lat_radian)
+		* sin(Dest_Lat_radian) + cos(Cur_Lat_radian)
+		* cos(Dest_Lat_radian)
+		* cos(Cur_Lon_radian - Dest_Lon_radian));
+
+	// 목적지 이동 방향을 구한다.(현재 좌표에서 다음 좌표로 이동하기 위해서는 
+	//방향을 설정해야 한다. 라디안값이다.
+	double radian_bearing = acos((sin(Dest_Lat_radian) - sin(Cur_Lat_radian)
+		* cos(radian_distance))
+		/ (cos(Cur_Lat_radian) * sin(radian_distance)));
+
+
+	if (_isnan(radian_bearing))//exception handling
+		radian_bearing = 0;
+
+	// acos의 인수로 주어지는 x는 360분법의 각도가 아닌 radian(호도)값이다.
+	double true_bearing = 0;
+
+
+	if (sin(Dest_Lon_radian - Cur_Lon_radian) < 0) {
+		true_bearing = radian_bearing * Rad2Deg_Multi;
+		true_bearing = 360 - true_bearing;
+
+		if (true_bearing == 360)
+		{
+			true_bearing = 0;
+		}
+	}
+	else {
+		true_bearing = radian_bearing * Rad2Deg_Multi;
+	}
+
+	return true_bearing;
+}
+
+
+//방위각과 거리를 이용한 좌표 환산
+GPS_DD DistDeg2GPS_DD(GPS_DD DD_A, double distance, double degree)
+{
+	if (distance == 0)
+	{
+		return DD_A;
+	}
+
+	GPS_DD DD_B = { 0, 0 };
+
+	DD_A.lon = DD_A.lon*Deg2Rad_Multi;
+	DD_A.lat = DD_A.lat*Deg2Rad_Multi;
+
+
+	degree = degree*Deg2Rad_Multi;
+
+	distance = distance / 1000; //meter to km
+
+
+	DD_B.lat = asin(sin(DD_A.lat)*cos(distance / Earth_R) +
+		cos(DD_A.lat)*sin(distance / Earth_R)*cos(degree));
+
+	DD_B.lon = DD_A.lon + atan2(sin(degree)*sin(distance / Earth_R)*cos(DD_A.lat),
+		cos(distance / Earth_R) - sin(DD_A.lat)*sin(DD_B.lat));
+
+	DD_B.lon = DD_B.lon*Rad2Deg_Multi;
+	DD_B.lat = DD_B.lat*Rad2Deg_Multi;
+
+
+	return DD_B;
+
+}
+
+//자북 기준 각을 진북 기준 각으로 변환 
+double DegreeMag2True(double degree)
+{
+	degree = degree - Deviation_Angle;
+
+	if (degree<0)
+	{
+		degree = 360 + degree;
+	}
+	return degree;
+}
+
+//자북 기준 각을 진북 기준 각으로 변환
+double DegreeTrue2Mag(double degree)
+{
+
+	degree = degree + Deviation_Angle;
+
+	if (degree >= 360)
+	{
+		degree = degree - 360;
+	}
+
+	return degree;
+}
+
+
+
+bool IsSamePoint(GPS_DD DD_A, GPS_DD DD_B)
+{
+	if ((DD_A.lon == DD_B.lon)&&(DD_A.lat == DD_B.lat))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
