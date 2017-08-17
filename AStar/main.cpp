@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "AStar.hpp"
-#include <opencv2\opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <unistd.h>
 
 using namespace cv;
@@ -20,6 +20,7 @@ int main()
 
 	namedWindow("My Window", 0);
 	imshow("My Window", local_map);
+
 
 	AStar::Generator generator;
 	// Set 2d map size.
@@ -77,7 +78,7 @@ int main()
 
 	cv::imshow("My Window", local_map);
 
-	sleep(2);
+	cv::waitKey(2000);
 	cv::destroyAllWindows();
 
 	return 0;
