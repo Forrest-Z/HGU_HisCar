@@ -2,10 +2,11 @@
 
 #ifndef ShortestPath
 #define ShortestPath
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
 
-#define GLOBAL_PATH_LOCATION ".\\GlobalPath_coordinate.txt"
+#define GLOBAL_PATH_LOCATION "./GlobalPath_coordinate.txt"
+//#define GLOBAL_PATH_LOCATION ".\\GlobalPath_coordinate.txt"
 #define INF 10000
 #define NIL -1
 #define SIZE 14

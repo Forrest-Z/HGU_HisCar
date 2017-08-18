@@ -3,7 +3,6 @@
 #include"DGPS.h"
 
 
-//define된 Local Map Size에 맞게 Local Map Range를 정해주는 함수
 Rect_double LocalMapRange(GPS_DD center) 
 {
 	Rect_double LocalRange;
@@ -14,19 +13,19 @@ Rect_double LocalMapRange(GPS_DD center)
 	GPS_DD clock315 = DistDeg2GPS_DD(center, sqrt(2 * pow((double)(Local_Map_Size / 2), 2)), 315);
 
 
-	//중심과 방위각 315도
+	
 	LocalRange.tl.x = clock315.lon;
 	LocalRange.tl.y = clock315.lat;
 
-	//중심과 방위각 45도
+	
 	LocalRange.tr.x = clock45.lon;
 	LocalRange.tr.y = clock45.lat;
 
-	//중심과 방위각 225도
+	
 	LocalRange.bl.x = clock225.lon;
 	LocalRange.bl.y = clock225.lat;
 
-	//중심과 방위각 135도
+	
 	LocalRange.br.x = clock135.lon;
 	LocalRange.br.y = clock135.lat;
 
@@ -48,7 +47,7 @@ std::vector<GPS_DD> InterpolatePath(GPS_DD start, GPS_DD end)
 	double distance = GPS_DD2Dist(start, end);
 	
 	
-	if (distance <= Path_Interval) //거리가 0일경우(같은 점이 입력되었을 경우) 해당 Point 한개만을 가지는 벡터 리턴
+	if (distance <= Path_Interval) 
 	{
 		if (distance == 0)
 		{
@@ -84,11 +83,11 @@ std::vector<GPS_DD> InterpolatePath(GPS_DD start, GPS_DD end)
 }
 
 
-// 한 Point에 대하여 전 후 smoothingSize 개수 + 자기 자신의 값의 평균을 다시 취하는 smoothing 진행
+
 void SmoothingPath(std::vector<GPS_DD> *path,int smoothingSize) 
 {
 	
-	if ((smoothingSize > (*path).size())||(smoothingSize<=0)) //exception handling
+	if ((smoothingSize > (*path).size())||(smoothingSize<=0)) 
 	{
 		return;
 	}
@@ -97,7 +96,7 @@ void SmoothingPath(std::vector<GPS_DD> *path,int smoothingSize)
 
 	for (iter = (*path).begin(); iter != (*path).end(); iter++)
 	{
-		//양 옆으로 smoothingSize보다 좌표 개수가 적을 경우 해당 좌표는 Smoothing을 진행하지 않는다.
+	
 		if ((iter >= ((*path).begin() + smoothingSize)) && (iter <= ((*path).end() - smoothingSize - 1))) 
 		{
 			int count = 0;
@@ -122,14 +121,14 @@ void SmoothingPath(std::vector<GPS_DD> *path,int smoothingSize)
 }
 
 
-//여러개의 WayPoint를 담고 있는 벡터를 가지고 경로를 생성
+
 std::vector<GPS_DD> GeneratePath(std::vector<GPS_DD> wayPoint)
 {
 	std::vector<GPS_DD> path;
 	std::vector<GPS_DD>::iterator iter;
 
 
-	if (wayPoint.size() <= 1) //wayPoint가 1개만 있거나 없을 경우 그대로 반환 
+	if (wayPoint.size() <= 1) 
 	{
 		return wayPoint;
 	}
@@ -142,9 +141,6 @@ std::vector<GPS_DD> GeneratePath(std::vector<GPS_DD> wayPoint)
 	return path;
 }
 
-//두 좌표가 같은 위치인지 판별 
-
-//Path를 합쳐주는 함수
 void MergePath(std::vector<GPS_DD> *Dest, std::vector<GPS_DD> Source)
 {
 	std::vector<GPS_DD>::iterator iter = Source.begin();

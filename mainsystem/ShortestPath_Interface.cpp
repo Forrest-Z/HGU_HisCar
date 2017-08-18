@@ -31,15 +31,15 @@ void SelectInterface(void* GPS_Point)
 
 	std::cout << "///////////////////////////////////////////////////////" << std::endl;
 	std::cout << "             Global Way Point Setting                  " << std::endl;
-	std::cout <<"        Button Double Click : 설정 완료                  " << std::endl;
-	std::cout << "       Mouse Left Button   : Vertex 선택             " << std::endl;
-	std::cout << "       Mouse Right Button  : 직전 선택 취소          " << std::endl;
-	std::cout << "                     ESC   : 취소 및 종료            " << std::endl;
+	std::cout <<"        Button Double Click : setting complete                  " << std::endl;
+	std::cout << "       Mouse Left Button   : Vertex choose             " << std::endl;
+	std::cout << "       Mouse Right Button  : selecting cancel          " << std::endl;
+	std::cout << "                     ESC   : exit            " << std::endl;
 	std::cout << "-------------------------------------------------------" << std::endl;
 	std::cout << "------------------------Manual-------------------------" << std::endl;
-	std::cout << "1. 마우스 왼쪽 버튼을 클릭하여 시작점과 종료점 우선 선택" << std::endl;
-	std::cout << "2. 마우스 왼쪽 버튼을 클릭하여 경로점 선택           " << std::endl;
-	std::cout << "3. 선택 완료시 더블 클릭                          " << std::endl;
+	std::cout << "1. click start and finish point" << std::endl;
+	std::cout << "2. click waypoints           " << std::endl;
+	std::cout << "3. If you finish, click double                          " << std::endl;
 	std::cout << "////////////////////////////////////////////////////" << std::endl;
 
 	cv::imshow("Global Map",image);
@@ -58,11 +58,11 @@ void SelectInterface(void* GPS_Point)
 			break;
 		}
 
-	} while (key!=ESC && key != -1);//imshow가 destroy 되었을 때 key 값은 계속 -1로 오게됨, 아닐 경우 계속 대기 상태
+	} while (key!=ESC && key != -1);
 
 	if (selectedPoint.size()<2)
 	{
-		std::cout << "Global Way Point 설정에 실패 하였습니다." << std::endl;
+		std::cout << "Global Way Point setting failed" << std::endl;
 		selectedVertex.clear();
 		(*realPoint).clear();
 		return;
@@ -70,17 +70,17 @@ void SelectInterface(void* GPS_Point)
 
 	else
 	{
-		std::cout << "Global Way Point 설정에 성공 하였습니다." << std::endl;
+		std::cout << "Global Way Point setting success." << std::endl;
 	}
 
-	std::cout << "Point 보정 및 Point mapping을 시작합니다." << std::endl;
+	std::cout << "Start Point calibration and Point mapping." << std::endl;
 	std::vector<std::pair<char*, cv::Point>> imagePoint;
 
-	PointRevision((void*)&selectedPoint,(void*)&imagePoint); //마우스로 지정한 좌표와 ImagePoint.txt 상에 좌표를 연결 및 보정
+	PointRevision((void*)&selectedPoint,(void*)&imagePoint); 
 	
 	if ((imagePoint).size() == 0)
 	{
-		std::cout << "Point 보정 및 Point mapping에 실패했습니다." << std::endl;
+		std::cout << "Point calibration and Point mapping failed." << std::endl;
 		selectedVertex.clear();
 		(*realPoint).clear();
 		return;
@@ -90,15 +90,16 @@ void SelectInterface(void* GPS_Point)
 	{
 		selectedVertex.push_back((imagePoint)[x].first);
 	}
-	std::cout << "Point 보정 및 Point mapping을 완료했습니다." << std::endl;
+	std::cout << "Point calibration and Point mapping success." << std::endl;
 
-	std::cout << "선택된 Vertex 개수는"<< selectedVertex.size() <<" 입니다. "<< std::endl;
+	std::cout << "Selected Vertex Number is "<< selectedVertex.size() <<" . "<< std::endl;
 
 
 
-	std::cout<<std::endl << "선택된 Vertex들을 지나는 최단 경로를 계산합니다. " << std::endl;
+	std::cout<<std::endl << "Calculate Shortest path of Selected Vertex. " << std::endl;
 	FloydWarshall(&selectedVertex);
-	std::cout << std::endl << "최단 경로 알고리즘에 의해 선택된 Vertex 개수는" << selectedVertex.size() << " 입니다. " << std::endl;
+	std::cout<<"here?"<<std::endl;
+	std::cout << std::endl << "Selected Vertex of Shortest path Number is" << selectedVertex.size() << " . " << std::endl;
 
 
 
@@ -107,19 +108,20 @@ void SelectInterface(void* GPS_Point)
 	if (PointMapping((void*)&selectedVertex, (void*)&imagePoint, (void*)&(*realPoint)))
 	{
 
-		std::cout << std::endl << "최단 경로 찾기 및 Point Mapping에 성공했습니다" << std::endl << "경로 지도를 출력합니다 " << std::endl;
-		drawPath((void*)&imagePoint, (void*)&image); //Path를 그려주는 역할
+		std::cout << std::endl << "Making Shortest Path and  Point Mapping is succeed" << std::endl << "Print Map. " << std::endl;
+		drawPath((void*)&imagePoint, (void*)&image); 
 
 
 
 		cv::imshow("Global Map", image);
-		cv::imwrite(".\\GlobalMap.jpg", image);
+		cv::imwrite("./GlobalMap.jpg", image);
+		// cv::imwrite(".\\GlobalMap.jpg", image);
 		cv::waitKey();
-		cv::destroyWindow("Global Map");
+	//	cv::destroyWindow("Global Map");
 	}
 	else
 	{
-		std::cout << std::endl << "최단 경로 찾기 및 Point Mapping에 실패했습니다." << std::endl<<std::endl;
+		std::cout << std::endl << "Making Shortest Path and  Point Mapping is failed." << std::endl<<std::endl;
 		(*realPoint).clear();
 	}
 
@@ -188,7 +190,7 @@ void MouseSelect(int event, int x, int y, int flags,void* param)
 				(*selectedPoint).pop_back();
 				image = imageOrigin.clone();
 				cv::resize(image, image, cv::Size(IMAGE_WIDHT, IMAGE_HEIGHT));
-				std::cout << "포인트가 제거 되었습니다" << std::endl;
+				std::cout << "Point is eliminated" << std::endl;
 			
 			}
 			else if (startEndPoint.size() > 0)
@@ -196,7 +198,7 @@ void MouseSelect(int event, int x, int y, int flags,void* param)
 					startEndPoint.pop_back();
 					image = imageOrigin.clone();
 					cv::resize(image, image, cv::Size(IMAGE_WIDHT, IMAGE_HEIGHT));
-					std::cout << "포인트가 제거 되었습니다" << std::endl;
+					std::cout << "Point is eliminated" << std::endl;
 					if (startEndPoint.size() == 0)
 					{
 						cv::imshow("Global Map",image);
@@ -204,13 +206,13 @@ void MouseSelect(int event, int x, int y, int flags,void* param)
 				}
 
 			else
-			std::cout << "저장된 포인트가 존재하지 않습니다." << std::endl;
+			std::cout << "There is no Point that stored in" << std::endl;
 				
 		
 		break;
 
 	case CV_EVENT_LBUTTONDBLCLK:
-		std::cout << "WayPoint 설정을 종료합니다." << std::endl;
+		std::cout << "WayPoint setting closed." << std::endl;
 		std::vector<cv::Point>::iterator iter = (*selectedPoint).begin();
 
 		if (startEndPoint.size() == 2){
@@ -241,14 +243,14 @@ void MouseSelect(int event, int x, int y, int flags,void* param)
 
 	if (startEndPoint.size()>0)
 	{
-		cv::circle(image, (startEndPoint)[0], 5, cv::Scalar(0, 0, 255), -1); //시작점 Red
+		cv::circle(image, (startEndPoint)[0], 5, cv::Scalar(0, 0, 255), -1); 
 
 		if (startEndPoint.size() != 1)
 		{
-			cv::circle(image, (startEndPoint)[1], 5, cv::Scalar(255, 0, 0), -1); //도착점 Blue
+			cv::circle(image, (startEndPoint)[1], 5, cv::Scalar(255, 0, 0), -1);
 			for (int x = 0; x < (*selectedPoint).size(); x++)
 			{
-				cv::circle(image, (*selectedPoint)[x], 5, cv::Scalar(0, 255, 0), -1); //경유점 Green
+				cv::circle(image, (*selectedPoint)[x], 5, cv::Scalar(0, 255, 0), -1);
 
 			}
 		}
@@ -282,7 +284,7 @@ void PointRevision(void *point,void *vertex)
 		return;
 	}
 
-	//txt파일의 첫 줄은 이미지 크기
+	
 	clearBuffer(str, buffSize);
 	fin.getline(str, buffSize, ' ');
 	int imageWidth = atoi(str); //original Image size
@@ -315,7 +317,7 @@ void PointRevision(void *point,void *vertex)
 		tempPoint.y = (int)(atoi(str)*heightRatio);
 
 
-		if (tempStr != NULL&&tempPoint.x > 0 && tempPoint.y > 0) //0과 Width index는 exception handling에 사용
+		if (tempStr != NULL&&tempPoint.x > 0 && tempPoint.y > 0) 
 		{
 			if (tempPoint.x < IMAGE_WIDHT&&tempPoint.y < IMAGE_HEIGHT)
 			{
@@ -324,10 +326,10 @@ void PointRevision(void *point,void *vertex)
 					vertexPoint.push_back(std::make_pair(tempStr, tempPoint));
 				}
 				int count = 0;
-				for (int x = 0; x < vertexPoint.size(); x++) //중복 좌표 허용 X
+				for (int x = 0; x < vertexPoint.size(); x++) 
 				{
 					if ((vertexPoint[x].second.x == tempPoint.x) && (vertexPoint[x].second.y == tempPoint.y) &&
-						(strcmp(tempStr, vertexPoint[x].first) == 0))//같은게 있으면 break;
+						(strcmp(tempStr, vertexPoint[x].first) == 0))
 					{
 						break;
 					}
@@ -369,7 +371,7 @@ void PointRevision(void *point,void *vertex)
 		if ((x == 0) || (x == (*selectedPoint).size() - 1))
 			if (count == vertexPoint.size())
 			{
-				std::cout << "출발점과 도착점이 올바르게 설정되지 않았습니다." << std::endl;
+				std::cout << "Starting point and Finishing point are wrong." << std::endl;
 				(*selectedVertex).clear();
 				return;
 			}	
@@ -403,15 +405,15 @@ void drawPath(void *wayPoint, void*image)
 	{
 		if (x == 0)
 		{
-			std::cout << "시작점 ";
+			std::cout << "Starting Point ";
 		}
 		else if (x == (*selectedVertex).size() - 1)
 		{
-			std::cout << "도착점 ";
+			std::cout << "Finishing Point ";
 		}
 		else
 		{
-			std::cout << "경로점 ";
+			std::cout << "Waypoint ";
 		}
 
 		std::cout << "(" << x << ")    " << (*selectedVertex)[x].second << std::endl;
@@ -492,7 +494,7 @@ int PointMapping(void *vertex, void *imagePoint, void *realPoint)
 		return false;
 	}
 
-	//Image txt파일의 첫 줄은 이미지 크기
+	
 	clearBuffer(str, buffSize);
 	finImage.getline(str, buffSize, ' ');
 	int imageWidth = atoi(str); //original Image size
@@ -508,7 +510,7 @@ int PointMapping(void *vertex, void *imagePoint, void *realPoint)
 	for (int x = 0; x < (*Vertex).size(); x++)
 	{
 		finImage.seekg(0, std::ios::beg);
-		finImage.getline(str, buffSize); //첫줄 무시
+		finImage.getline(str, buffSize);
 
 		finReal.seekg(0, std::ios::beg);
 
@@ -532,7 +534,7 @@ int PointMapping(void *vertex, void *imagePoint, void *realPoint)
 				finImage.getline(str, buffSize);
 				tempPoint.y = (int)(atoi(str)*heightRatio);
 
-				if (tempStr != NULL&&tempPoint.x > 0 && tempPoint.y > 0) //0과 Width index는 exception handling에 사용
+				if (tempStr != NULL&&tempPoint.x > 0 && tempPoint.y > 0) 
 				{
 					if (tempPoint.x < IMAGE_WIDHT&&tempPoint.y < IMAGE_HEIGHT)
 					{
@@ -586,7 +588,7 @@ int PointMapping(void *vertex, void *imagePoint, void *realPoint)
 
 	if ((*realVertex).size() != (*imageVertex).size())
 	{
-		std::cout << "Mapping에 실패하였습니다." << std::endl;
+		std::cout << "Mapping is failed." << std::endl;
 		return false;
 	}
 	

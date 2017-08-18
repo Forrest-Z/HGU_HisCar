@@ -1,27 +1,27 @@
-#include<fstream>
-#include<vector>
+#include <fstream>
+#include <vector>
 #include <iostream>
 #include "DGPS.h"
 #include "LocalPath.h"
-#include"test.h"
-#include"ShortestPath_Interface.h"
-#include"TransverseControl.h"
+#include "test.h"
+#include "ShortestPath_Interface.h"
+#include "TransverseControl.h"
 
 using namespace std;
 
 
-void testCase1() //거리, 방위각 계산 및 역계산
+void testCase1()
 {
 	cout << fixed;
 	cout.precision(10);
 	cout << "##############################################" << endl;
-	cout << "# Test Case 1: 거리, 방위각 계산 및 역계산" << endl;
+	cout << "# Test Case 1: Calculate Azimuth and Distance" << endl;
 	cout << "##############################################" << endl<< endl;
 	GPS_DD A = { 129.388734, 36.102799 }, B = { 129.388374, 36.101938}, C;
-	cout << "A 포인트 경도: " << A.lon << endl;
-	cout << "A 포인트 위도: " << A.lat << endl;
-	cout << "B 포인트 경도: " << B.lon << endl;
-	cout << "B 포인트 위도: " << B.lat << endl;
+	cout << "A Point Longtitude: " << A.lon << endl;
+	cout << "A Point Latitude: " << A.lat << endl;
+	cout << "B Point Longtitude: " << B.lon << endl;
+	cout << "B Point Latitude: " << B.lat << endl;
 	
 	double degree, distance;
 
@@ -30,14 +30,14 @@ void testCase1() //거리, 방위각 계산 및 역계산
 
 	distance = GPS_DD2Dist(A, B);
 	degree = GPS_DD2Deg(A, B);
-	cout << endl << "A와 B 사이 거리 : " << distance << "m" << endl;
-	cout << "A와 B 사이 방위각 : " << degree << "(degree)" << endl;
+	cout << endl << "A-B Distance : " << distance << "m" << endl;
+	cout << "A- B  Azimuth : " << degree << "(degree)" << endl;
 	cout << "/////////////////////////////////////////" << endl << endl;
 
 	C = DistDeg2GPS_DD(A, distance, degree);
 
-	cout << "C 포인트 경도: " << C.lon << endl;
-	cout << "C 포인트 위도: " << C.lat << endl;
+	cout << "C Point Longtitude: " << C.lon << endl;
+	cout << "C Point Latitude: " << C.lat << endl;
 	
 
 
@@ -45,8 +45,8 @@ void testCase1() //거리, 방위각 계산 및 역계산
 	degree = GPS_DD2Deg(A, C);
 
 	cout << endl << "/////////////////////////////////////////";
-	cout << endl << "A와 C 사이 거리 : " << distance << "m" << endl;
-	cout << "A와 C 사이 방위각 : " << degree << "(degree)" << endl;
+	cout << endl << "A-C  Distance : " << distance << "m" << endl;
+	cout << "A-C  Azimuth : " << degree << "(degree)" << endl;
 	cout << "/////////////////////////////////////////" << endl << endl;
 
 	clearScreen();
@@ -58,18 +58,18 @@ void testCase1() //거리, 방위각 계산 및 역계산
 void testCase2() //Local Map Range Setting
 {
 	ofstream fout1;
-	//저장해줄때 precision 자리수 Setting 해줘야 한다 안해줄 경우 정수 포함 6자리만 유효
+	
 	fout1 << fixed;
 	fout1.precision(14);
 
-	fout1.open(".\\LocalRange.csv");
-
+	fout1.open("./LocalRange.csv");
+//	fout1.open(".\\LocalRange.csv");
 
 
 	cout << fixed;
 	cout.precision(10);
 	cout << "##############################################" << endl;
-	cout << "# Test Case 2: 로컬맵 영역 설정" << endl;
+	cout << "# Test Case 2: Setting Local map range" << endl;
 	cout << "##############################################" << endl << endl;
 	GPS_DD A = { 129.388734, 36.102799 }, B = { 129.388374, 36.101938 }, C = { 129.389413,36.101714 };
 
@@ -145,22 +145,24 @@ void testCase2() //Local Map Range Setting
 	fout1.close();
 }
 
-void testCase3() //경로 보간과 스무딩
+void testCase3()
 {
 	cout << fixed;
 	cout.precision(10);
 
 	ofstream fout1, fout2;
-	//저장해줄때 precision 자리수 Setting 해줘야 한다 안해줄 경우 정수 포함 6자리만 유효
+	
 	fout1 << fixed;
 	fout1.precision(14);
 	fout2 << fixed;
 	fout2.precision(14);
 
-	fout1.open(".\\gps_not_smoothing.csv");
-	fout2.open(".\\gps_smoothing.csv");
+	// fout1.open(".\\gps_not_smoothing.csv");
+	// fout2.open(".\\gps_smoothing.csv");
+	fout1.open("./gps_not_smoothing.csv");
+	fout2.open("./gps_smoothing.csv");
 	cout << "##############################################" << endl;
-	cout << "# Test Case 3: 경로 보간 및 스무딩"  << endl;
+	cout << "# Test Case 3: Path calibration and Smoothing"  << endl;
 	cout << "##############################################" << endl << endl;
 	GPS_DD A = { 129.388734, 36.102799 }, B = { 129.388374, 36.101938 };
 	vector<GPS_DD> localA2B = InterpolatePath(A, B);
@@ -206,13 +208,14 @@ void testCase4()
 	cout.precision(10);
 
 	cout << "##############################################" << endl;
-	cout << "# Test Case 4: 전체 경로 생성(보간) 및 스무딩" << endl;
+	cout << "# Test Case 4: Global Path calibration and Smoothing" << endl;
 	cout << "##############################################" << endl << endl;
 	ofstream  fout1, fout2;
 	ifstream fin;
-	fin.open(".\\wayPoint.txt");
+//	fin.open(".\\wayPoint.txt");
+	fin.open("./wayPoint.txt");
 
-	//저장해줄때 precision 자리수 Setting 해줘야 한다 안해줄 경우 정수 포함 6자리만 유효
+	
 	fin >> fixed;
 	fin.precision(14);
 
@@ -228,8 +231,11 @@ void testCase4()
 		return;
 	}
 
-	fout1.open(".\\generatePath.csv");
-	fout2.open(".\\generatePath_Smoothing.csv");
+	fout1.open("./generatePath.csv");
+	fout2.open("./generatePath_Smoothing.csv");
+
+	// fout1.open(".\\generatePath.csv");
+	// fout2.open(".\\generatePath_Smoothing.csv");
 	char *str;
 	str = (char*)malloc(32);
 	std::vector<GPS_DD> wayPoint;
@@ -297,7 +303,7 @@ void testCase5()
 void testCase6()
 {
 	cout << "##############################################" << endl;
-	cout << "# Test Case 6: Global Path Planning & 경로 보간 및 스무딩" << endl;
+	cout << "# Test Case 6: Global Path Planning & Path calibration and Smoothing" << endl;
 	cout << "##############################################" << endl << endl;
 
 	std::vector<GPS_DD> wayPoint;
@@ -318,9 +324,11 @@ void testCase6()
 		cout << "WayPoint is not existed" << endl;
 		return;
 	}
+	fout1.open("./generatePath.csv");
+	fout2.open("./generatePath_Smoothing.csv");
 
-	fout1.open(".\\generatePath.csv");
-	fout2.open(".\\generatePath_Smoothing.csv");
+	// fout1.open(".\\generatePath.csv");
+	// fout2.open(".\\generatePath_Smoothing.csv");
 	char *str;
 	str = (char*)malloc(32);
 
@@ -366,10 +374,10 @@ void testCase6()
 		{
 			pathLength += GPS_DD2Dist(path[x], path[x + 1]);
 		}
-		cout << "경로점("<<x<<") "<< path[x].lon <<","<< path[x].lat << endl;
+		cout << "Waypoint("<<x<<") "<< path[x].lon <<","<< path[x].lat << endl;
 	}
 
-	cout << endl << "전체 경로 길이 : " << pathLength << "(m)" << endl;
+	cout << endl << "Total length of Gobal path : " << pathLength << "(m)" << endl;
 
 	getchar();
 	clearScreen();
@@ -379,42 +387,32 @@ void testCase6()
 void testCase7()
 {
 	cout << "##############################################" << endl;
-	cout << "# Test Case 7: 곡률 반경 계산, 조향각 계산" << endl;
+	cout << "# Test Case 7: Calculate Curvature, Steering angle" << endl;
 	cout << "##############################################" << endl << endl;
 
 	double angle;
-	cout << "곡률 반경을 계산할 조향각을 입력해주세요 : ";
+	cout << "Input wanted Curvature, Steering angle : ";
 	cin >> angle;
 	double radius = Angle2Radius(angle);
-	cout << "곡률 반경 : " << radius << "(m)"<<endl;
+	cout << "Curvature : " << radius << "(m)"<<endl;
 	angle = Radius2Angle(radius);
-	cout << "곡률 반경에 의한 Target Angle: " << angle  <<"(deg)"<< endl ;
+	cout << "Target Angle by Curvature : " << angle  <<"(deg)"<< endl ;
 	double maxSpeed;
 	maxSpeed = MaxSpeed(radius);
-	cout << "곡률반경에 의한 Target Speed : " << maxSpeed<< "(km/h)"<<endl;
+	cout << "Target Speed by Curvature: " << maxSpeed<< "(km/h)"<<endl;
 
 	cout << endl << "////////////////////////////////////////////" << endl << endl;
 
-	cout << "조향각을 계산할 곡률 반경을 입력해주세요 : ";
+	cout << "Input Curvature to calcuate Steering angle : ";
 	cin >> radius;
 	angle = Radius2Angle(radius);
 	cout << "Target Angle : " << angle << "(deg)" << endl;
 	radius = Angle2Radius(angle);
-	cout << "Target Angle에 의한 곡률반경 : " << radius << "(m)" << endl;
+	cout << "Curvature by Target Angle : " << radius << "(m)" << endl;
 	maxSpeed = MaxSpeed(radius);
-	cout << "곡률반경에 의한 Target Speed : " << maxSpeed << "(km/h)" << endl;
+	cout << "Target Speed by Curvature: " << maxSpeed << "(km/h)" << endl;
 
 
-	/*
-	GPS_DD A = { 129.388734, 36.102799 }, B = { 129.388734, 36.101938 };
-	double heading = 90;
-
-	GPS_DDHead2SpeedAngle((void*)&A, (void*)&B, heading, &maxSpeed, &angle);
-
-	cout << endl << "A에서 B로 가기 위한 목표 속도와 조향각 " << endl;
-	cout << "Max Speed : " << maxSpeed << endl;
-	cout << "Steering Angle : " << angle << endl;
-	*/
 	getchar();
 	clearScreen();
 
@@ -423,34 +421,34 @@ void testCase7()
 void testCase8()
 {
 	cout << "###########################################################################" << endl;
-	cout << "# Test Case 8: Heading 방향과 두 점 좌표를 통한 곡률 반경 계산,           #" << endl;
-	cout << "#               조향각 계산, 목표 속도 계산                               #" << endl;
+	cout << "# Test Case 8: Calculate Curvature, Steering angle, Target velocity using two coordinates and Heading direction.           #" << endl;
+	
 	cout << "###########################################################################" << endl << endl;
 
 	GPS_DD A,B;
 
-	cout << "A 지점의 좌표를 입력해주세요" << endl;
-	cout << "위도 : ";
+	cout << "Input A coordinate" << endl;
+	cout << "Latitude : ";
 	cin >> A.lon;
-	cout << "경도 : ";
+	cout << "Longtitude : ";
 	cin >> A.lat;
 	cout << endl;
 
-	cout << "B 지점의 좌표를 입력해주세요" << endl;
-	cout << "위도 : ";
+	cout << "Input B coordinate" << endl;
+	cout << "Latitude : ";
 	cin >> B.lon;
-	cout << "경도 : ";
+	cout << "Longtitude : ";
 	cin >> B.lat;
 	cout << endl;
 
 
 
 	double heading;
-	cout << "차량의 현재 Heading 방향을 입력해주세요 : ";
+	cout << "Input current direction of Heading of Car : ";
 	cin >> heading;
 	double maxSpeed, angle;
 
-	cout << endl<<"두 점 A,B 사이 거리 : " << GPS_DD2Dist(A, B) << "(m)" << endl;
+	cout << endl<<"A,B  Distance : " << GPS_DD2Dist(A, B) << "(m)" << endl;
 
 	GPS_DDHead2SpeedAngle((void*)&A, (void*)&B, heading, &maxSpeed, &angle);
 
@@ -462,34 +460,19 @@ void testCase8()
 void testCase9()
 {
 	cout << "###########################################################################" << endl;
-	cout << "#          Test Case 8: Heading 방향과 두 점 좌표를 이용한 중간 과정      #" << endl;
+	cout << "#          Test Case 8: Heading direction and  Middle process using two coordinates      #" << endl;
 	cout << "#                                                                         #" << endl;
 	cout << "###########################################################################" << endl << endl;
 
 	GPS_DD A = { 129.388855,36.102771}, B = { 129.388918, 36.102707 };
-	/*
-	cout << "A 지점의 좌표를 입력해주세요" << endl;
-	cout << "위도 : ";
-	cin >> A.lon;
-	cout << "경도 : ";
-	cin >> A.lat;
-	cout << endl;
-
-	cout << "B 지점의 좌표를 입력해주세요" << endl;
-	cout << "위도 : ";
-	cin >> B.lon;
-	cout << "경도 : ";
-	cin >> B.lat;
-	cout << endl;
-	*/
-
+	
 
 	double heading;
-	cout << "차량의 시작 Heading 방향을 입력해주세요 : ";
+	cout << "Input Starting direction of Heading of Car : ";
 	cin >> heading;
 	double maxSpeed, angle;
 	double distance = GPS_DD2Dist(A, B);
-	cout << endl << "두 점 A,B 사이 거리 : " << distance<< "(m)" << endl;
+	cout << endl << "A,B  Distance : " << distance<< "(m)" << endl;
 	GPS_DDHead2SpeedAngle((void*)&A, (void*)&B, heading, &maxSpeed, &angle);
 	getchar(); 
 	getchar();
@@ -500,7 +483,8 @@ void testCase9()
 	ofstream  fout1;
 	fout1 << fixed;
 	fout1.precision(14);
-	fout1.open(".\\steerTest.csv");
+	fout1.open("./steerTest.csv");
+//	fout1.open(".\\steerTest.csv");
 	int x = 0;
 	double distanceSum = 0;
 
@@ -520,8 +504,8 @@ void testCase9()
 		distanceSum += GPS_DD2Dist(C, PreC);
 
 		cout << "Heading : " << heading << endl;
-		cout << endl << "두 점 사이 거리 : " << distance << "(m)" << endl;
-		cout << endl << "누적 이동 거리 : " << distanceSum << "(m)" << endl;
+		cout << endl << "Two point  Distance : " << distance << "(m)" << endl;
+		cout << endl << "Accumulated moving Distance : " << distanceSum << "(m)" << endl;
 	}
 
 	fout1.close();

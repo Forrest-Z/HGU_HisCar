@@ -37,6 +37,10 @@
 void GPSreceiver()
 //void GPSreceiver(double Lon, double Lat, double kmh, double direct)
  {
+ 	while(1)
+ 	{
+ 	int number=0;
+
 	 int comfd;
  
 	 struct termios oldtio, newtio;       //place for old and new port settings for serial port
@@ -139,7 +143,7 @@ void GPSreceiver()
 	 //	unsigned char byte = {};
 	 //	unsigned char* sta = new unsigned char[7];
 	 
-	 char byte[2];
+	 char byte[2] = {0,0};
 	 char sta[7];
  
 	 std::string sentence = "";
@@ -248,6 +252,9 @@ void GPSreceiver()
 					 {	// 문장의 끝을 찾는다.
 						 //	serial.ReadByte(buff);	// 버퍼 비우고
 						 oneSentence = sentence;
+						 
+						 cout<<oneSentence<<endl;
+						 
 						 break;
 					 }
 					 else
@@ -299,7 +306,7 @@ void GPSreceiver()
 
 					 //return;
  
-					 printf("Current Time: %.0f\n",GMT);
+					 printf("Current Time(hhmmss): %.0f\n",GMT);
 					 printf("Longitude: %f\n",Longitude);
 					 printf("latitude: %f\n",Latitude);
 					 printf("Speed: %f\n",Speeed);
@@ -323,39 +330,46 @@ void GPSreceiver()
 				 else
 				 {
 					 //cout << "invalid data 위성신호가 잡히지 않습니다" << endl;
-					 printf("invalid data 위성신호가 잡히지 않습니다\n");
+					 printf("invalid data 위성신호가 잡히지 않습니다 Wait please\n");
 					 return;
 				 }
 			 }
 			 else
 			 {
-	 //			cout << "GNGGA가 아닌 경우 SKIP" << endl;
+	 	//		cout << "GNGGA가 아닌 경우 SKIP" << endl;
 				 //	sentence.clear();
- 
+
 				 while (1)	//txt 비우는 과정
 				 {
 					 //serial.ReadByte(byte);
 					 read(comfd,byte,1);
 	 			//	cout <<"one byte :: " << byte <<"****"<<endl;
  					
-
 					 if (!strcmp(byte,"\n"))
 					 {
 						 //			serial.ReadByte(buff);	// 버퍼 비우고
 						 oneSentence = sentence;
-					//	 cout<<oneSentence;
+					//	 cout<<"own sentence: "<<oneSentence<<endl;
 						 break;
 					 }
 					 else
 				 //		cout << "더해" << endl;
  
-					 sentence += byte;
+						sentence += byte;
+						// number++;
+						// if(number >100)
+						// {
+						// 	cout<<sentence<<endl;
+						// 	return;
+						// }
+				//	cout<<byte<<endl;
 				 }
 		 //		cout << sentence << endl;
- 
+ 			 sentence.clear();
+
 			 }
  
-			 sentence.clear();
+
 	 //		cout << oneSentence << endl;
 		 }
  
@@ -363,9 +377,10 @@ void GPSreceiver()
  
 		close(comfd);
 		 
-		return;
 
-	 }
+		}
+		return;
+	}
  
  
  

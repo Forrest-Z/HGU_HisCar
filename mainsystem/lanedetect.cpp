@@ -13,8 +13,9 @@ using namespace cv;
 Mat preprocess(Mat& frame);
 void findandDrawContour(Mat& roi, char* windowName, int type);
 void getMinMax(Mat& roi, double& min, double& max);
-Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept);
-void lanedetection();
+Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept, int& key, int& frame_rate, int& frameNum);
+//void lanedetection();
+void lanedetection(Mat frame);
 
 int interest_y = 200;  // mono.avi = 168  // school = 200 
 int interest_x = 0;
@@ -137,7 +138,7 @@ void findandDrawContour(Mat &roi, char* windowName, int type) {
 	}
 }
 
-Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept) {
+Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept, int& key, int& frame_rate, int& frameNum) {
 	Mat canny;
 	Canny(white, canny, 150, 300, 3);
 
@@ -365,6 +366,9 @@ Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslop
 	line(frame, Point((int)X.at<float>(0, 0), (int)X.at<float>(1, 0)), Point((int)a4, frame.rows), Scalar(255, 0, 155), 2); // left
 	circle(frame, Point((int)X.at<float>(0, 0), (int)X.at<float>(1, 0)), 5, Scalar(255, 200, 20), 3, LINE_AA);
 
+	imshow("frame", frame);
+	key = waitKey(frame_rate);
+	frameNum++;
 	return Point((int)X.at<float>(0, 0), (int)X.at<float>(1, 0));
 }
 
@@ -389,28 +393,15 @@ void getMinMax(Mat& roi, double& min, double& max) {
 }
 
 //int main()
-void lanedetection()
-{
-	char title[100] = "mono.wmv";
-	VideoCapture capture(title);
-
-	Mat frame;
-	int key, frameNum = 1, frame_rate = 30, leftKept = 0, rightKept = 0;
-	float prev_Rslope = 0, prev_Lslope = 0;
-	Point prev_intersectionPoint(0, 0);
-	
-	// videoRead
-//	while (1) {
-		if (!capture.read(frame))
-//			break;
-			return;
-
+//void lanedetection()
+/*
+void lanedetection(Mat frame) {
 		////////////////////////////////// lane detection = output: leftSlope, rightSlope, intersectionPoint/////////////////////////////////////////////////////////
 		prev_intersectionPoint = findLineAndVP(preprocess(frame), frame, prev_Rslope, prev_Lslope, prev_intersectionPoint, leftKept, rightKept);
 		imshow("frame", frame);
 		key = waitKey(frame_rate);
 		frameNum++;
 	   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	}
 	return;
 }
+*/

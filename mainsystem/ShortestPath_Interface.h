@@ -4,11 +4,14 @@
 #ifndef Shortest_Path_Interface
 #define Shortest_Path_Interface
 
-#define IMAGE_WIDHT 1151
-#define IMAGE_HEIGHT 831
+#define IMAGE_WIDHT 862
+#define IMAGE_HEIGHT 777
 
-#define IMAGE_LOCATION ".\\GlobalImage.jpg"
-#define IMAGE_POINT_LOCATION ".\\ImagePoint.txt"
+#define IMAGE_LOCATION "./example1.jpg"
+#define IMAGE_POINT_LOCATION "./ImagePoint1.txt"
+
+// #define IMAGE_LOCATION ".\\GlobalImage.jpg"
+// #define IMAGE_POINT_LOCATION ".\\ImagePoint.txt"
 
 
 #define DISTANCE(A,B) (((((A).x)-((B).x))*(((A).x)-((B).x)))+((((A).y)-((B).y))*(((A).y)-((B).y))))

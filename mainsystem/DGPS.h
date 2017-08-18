@@ -22,8 +22,8 @@
 
 
 typedef struct GPS_DD{
-	double lon;//Longitude 경도(세로줄) : 그리니치 천문대 기준 동쪽을 동경 서쪽을 서경, x값으로 생각
-	double lat;//Latitude 위도(가로줄) : 적도를 0으로 하고 위쪽은 북위 남쪽은 남위로, y값으로 생각 
+	double lon;//Longitude Longtitude
+	double lat;//Latitude Latitude
 }GPS_DD;
 
 typedef struct DMS{

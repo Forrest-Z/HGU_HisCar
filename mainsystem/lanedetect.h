@@ -13,5 +13,6 @@ using namespace cv;
 Mat preprocess(Mat& frame);
 void findandDrawContour(Mat& roi, char* windowName, int type);
 void getMinMax(Mat& roi, double& min, double& max);
-Point findLineAndVP(Mat& white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept);
-void lanedetection();
+Point findLineAndVP(Mat white, Mat& frame, float& prev_Rslope, float& prev_Lslope, Point intersectionPoint, int& leftKept, int& rightKept, int& key, int& frame_rate, int& frameNum);
+//void lanedetection();
+void lanedetection(Mat frame);
