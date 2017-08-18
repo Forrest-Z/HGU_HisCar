@@ -18,6 +18,7 @@ int main()
 	srand((unsigned)time(0));
 	Mat local_map(LOCALMAPSIZE, LOCALMAPSIZE, CV_8UC1, Scalar(255));
 
+	// Open window
 	namedWindow("My Window", 0);
 	imshow("My Window", local_map);
 
@@ -84,7 +85,7 @@ int main()
 
 	cv::imshow("My Window", local_map);
 
-	cv::waitKey(1000);
+	cv::waitKey(500);
 
 
 	return 0;
