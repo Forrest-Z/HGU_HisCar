@@ -19,6 +19,7 @@ namespace AStar
 		int x, y;
 
 		bool operator == (const Vec2i& coordinates_);
+		Vec2i operator + (const Vec2i& coordinates_);
 	};
 
 	using uint = unsigned int;
@@ -39,7 +40,6 @@ namespace AStar
 
 	class Generator
 	{
-		bool detectCollision(Vec2i coordinates_);
 		Node* findNodeOnList(NodeSet& nodes_, Vec2i coordinates_);
 		void releaseNodes(NodeSet& nodes_);
 
@@ -52,6 +52,7 @@ namespace AStar
 		void addCollision(Vec2i coordinates_);
 		void removeCollision(Vec2i coordinates_);
 		void clearCollisions();
+		bool detectCollision(Vec2i coordinates_);
 
 	private:
 		HeuristicFunction heuristic;

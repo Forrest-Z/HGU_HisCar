@@ -10,24 +10,42 @@ using namespace std;
 
 #define LOCALMAPSIZE 200
 
-//void local_path
+int direction_checker(AStar::Vec2i& prev, AStar::Vec2i& cur);
+bool collision_checker(AStar::Generator& gen, AStar::Vec2i& point);
 
 int main()
 {
-	int countPoint = 0;
 	srand((unsigned)time(0));
 	Mat local_map(LOCALMAPSIZE, LOCALMAPSIZE, CV_8UC1, Scalar(255));
+	Mat modified_map(LOCALMAPSIZE, LOCALMAPSIZE, CV_8UC1, Scalar(255));
+	vector<AStar::Vec2i> initial_path;
+	vector<AStar::Vec2i> modified_path;
+
+	int evenCheck = 0;
+	int numOfPoints = 0;
+
+	int prev_direction = 0;
+	int cur_direction = 0;
+	bool is_collision;
+	AStar::Vec2i start_point = { LOCALMAPSIZE / 2, LOCALMAPSIZE - 5 };
+	AStar::Vec2i end_point = { LOCALMAPSIZE / 2, 5 };
+	AStar::Vec2i prev_coord;
+	AStar::Vec2i cur_coord;
+	AStar::Vec2i prev_point;
+	AStar::Vec2i cur_point;
 
 	// Open window
 	namedWindow("My Window", 0);
-	imshow("My Window", local_map);
+	namedWindow("modified_map", 0);
+
+	modified_path.push_back(start_point);
 
 	AStar::Generator generator;
 	// Set 2d map size.
 	generator.setWorldSize({ LOCALMAPSIZE, LOCALMAPSIZE });
 	// You can use a few heuristics : manhattan, euclidean or octagonal.
 	generator.setHeuristic(AStar::Heuristic::euclidean);
-	generator.setDiagonalMovement(true);
+	generator.setDiagonalMovement(false);
 
 
 
@@ -42,10 +60,12 @@ int main()
 		if (rand_y < 10 || rand_y > LOCALMAPSIZE - 10 )
 			rand_y = 100;
 		circle(local_map, Point(rand_x, rand_y), 1, Scalar(0), 2);
+		circle(modified_map, Point(rand_x, rand_y), 1, Scalar(0), 2);
 		loop++;
 	}
 
 	// Create walls
+	// col : x, row : y
 	uchar* data = local_map.data;
 	for (int i = 0; i < local_map.rows; i++)
 	{
@@ -61,14 +81,38 @@ int main()
 	std::cout << "Generate path ... \n";
 
 	// This method returns vector of coordinates from target to source.
-	//auto path = generator.findPath( { endingPoint.x, endingPoint.y }, { startingPoint.x, startingPoint.y });
-	auto path = generator.findPath({ LOCALMAPSIZE / 2, 5 }, { LOCALMAPSIZE / 2, LOCALMAPSIZE - 5 });
-
-	int evenCheck = 0;
-	AStar::Vec2i prev_point;
+	// auto path = generator.findPath( { endingPoint.x, endingPoint.y }, { startingPoint.x, startingPoint.y });
+	auto path = generator.findPath(end_point, start_point );
 
 	// Checking last node is needed
-	for (auto& coordinate : path) {
+	for (auto& coordinate : path)
+	{
+
+		if(numOfPoints == 0)
+		{
+			cur_coord = coordinate;
+
+			numOfPoints++;
+			continue;
+		}
+		//		cout << endl << "Error point" << endl;
+		prev_coord = cur_coord;
+		cur_coord = coordinate;
+
+		prev_direction = cur_direction;
+
+		// direction checker
+		cur_direction = direction_checker(prev_coord, cur_coord);
+
+		// if direction is changed, save prev_point in the vector
+		if(prev_direction != cur_direction)
+		{
+			// check prev point has collision to the wall
+			// true means collision accrued
+			is_collision = collision_checker(generator, prev_coord);
+			if(!is_collision) modified_path.push_back(prev_coord);
+		}
+
 		evenCheck++;
 		if (evenCheck %= 2)
 		{
@@ -78,15 +122,74 @@ int main()
 		{
 			line(local_map, Point(prev_point.x, prev_point.y), Point(coordinate.x, coordinate.y), Scalar(100));
 		}
+	}
+	modified_path.push_back(end_point);
 
+	evenCheck = 0;
+	for (auto& coordinate : modified_path)
+	{
+		if(evenCheck == 0)
+		{
+			cur_point = coordinate;
+			evenCheck++;
+			continue;
+		}
+		prev_point = cur_point;
+		cur_point = coordinate;
+		line(modified_map, Point(prev_point.x, prev_point.y), Point(cur_point.x, cur_point.y), Scalar(100));
+
+		cout << coordinate.x << " " << coordinate.y << endl;
 	}
 
 	generator.clearCollisions();
 
 	cv::imshow("My Window", local_map);
+	cv::imshow("modified_map", modified_map);
 
-	cv::waitKey(500);
+	cv::waitKey(0);
+
+	return 0;
+}
+
+int direction_checker(AStar::Vec2i& prev, AStar::Vec2i& cur)
+{
+	int x = 0;
+	x = cur.x - prev.x;
+
+	if(x == 0)
+	{
+		return 0;
+	}
+	else if(x == 1)
+	{
+		return 1;
+	}
+	else
+	{
+		return -1;
+	}
+
 
 
 	return 0;
+}
+
+bool collision_checker(AStar::Generator& gen, AStar::Vec2i& point)
+{
+	bool left_check = true;
+	bool right_check = true;
+	bool up_check = true;
+	bool down_check = true;
+	AStar::Vec2i left = { -1, 0 };
+	AStar::Vec2i right = { 1, 0 };
+	AStar::Vec2i up = { 0, -1 };
+	AStar::Vec2i down = { 0, 1 };
+
+	left_check = gen.detectCollision(point + left);
+	right_check = gen.detectCollision(point + right);
+	up_check = gen.detectCollision(point + up);
+	down_check = gen.detectCollision(point + down);
+
+	if(left_check || right_check || up_check || down_check ) return true;
+	else return false;
 }

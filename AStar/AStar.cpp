@@ -10,9 +10,16 @@ bool AStar::Vec2i::operator == (const Vec2i& coordinates_)
 	return (x == coordinates_.x && y == coordinates_.y);
 }
 
-AStar::Vec2i operator + (const AStar::Vec2i& left_, const AStar::Vec2i& right_)
+/*
+AStar::Vec2i AStar::Vec2i::operator + (const AStar::Vec2i& left_, const AStar::Vec2i& right_)
 {
-	return{ left_.x + right_.x, left_.y + right_.y };
+	return { left_.x + right_.x, left_.y + right_.y };
+}
+*/
+
+AStar::Vec2i AStar::Vec2i::operator + (const Vec2i& coordinates_)
+{
+	return {x + coordinates_.x, y + coordinates_.y};
 }
 
 AStar::Node::Node(Vec2i coordinates_, Node *parent_)
@@ -32,9 +39,9 @@ AStar::Generator::Generator()
 	setDiagonalMovement(false);
 	setHeuristic(&Heuristic::manhattan);
 	direction = {
-		//{ 0, 1 },{ 1, 0 },{ 0, -1 },{ -1, 0 },
-		//{ -1, -1 },{ 1, 1 },{ -1, 1 },{ 1, -1 }
-		{ 0, 1 }, {-1, 1 }, { 1, 1 }, { -1, 0 }, { 1, 0 }
+		{ 0, 1 },{ 1, 0 },{ 0, -1 },{ -1, 0 },
+		{ -1, -1 },{ 1, 1 },{ -1, 1 },{ 1, -1 }
+		//{ 0, 1 }, {-1, 1 }, { 1, 1 }, { -1, 0 }, { 1, 0 }
 	};
 }
 
