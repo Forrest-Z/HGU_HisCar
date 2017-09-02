@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace std;
 
-#define LOCALMAPSIZE 200
+#define LOCALMAPSIZE 100
 
 int direction_checker(AStar::Vec2i& prev, AStar::Vec2i& cur);
 bool collision_checker(AStar::Generator& gen, AStar::Vec2i& point);
@@ -26,7 +26,8 @@ int main()
 
 	int prev_direction = 0;
 	int cur_direction = 0;
-	bool is_collision;
+	bool is_collision = false;
+	bool is_first = true;
 	AStar::Vec2i start_point = { LOCALMAPSIZE / 2, LOCALMAPSIZE - 5 };
 	AStar::Vec2i end_point = { LOCALMAPSIZE / 2, 5 };
 	AStar::Vec2i prev_coord;
@@ -38,6 +39,7 @@ int main()
 	namedWindow("My Window", 0);
 	namedWindow("modified_map", 0);
 
+	// Put first point in the modified_path
 	modified_path.push_back(start_point);
 
 	AStar::Generator generator;
@@ -48,8 +50,7 @@ int main()
 	generator.setDiagonalMovement(false);
 
 
-
-	local_map = Scalar(255);
+	// Random circle shape obstacle generator
 	int loop = 0;
 	while (loop < LOCALMAPSIZE)
 	{
@@ -64,7 +65,14 @@ int main()
 		loop++;
 	}
 
-	// Create walls
+	/*
+	// Rectangle shape obstacle generator
+	rectangle(local_map, Point(LOCALMAPSIZE / 4, LOCALMAPSIZE / 2), Point(LOCALMAPSIZE * 3 / 4, LOCALMAPSIZE / 2 + 10) , Scalar(0));
+	rectangle(modified_map, Point(LOCALMAPSIZE / 4, LOCALMAPSIZE / 2), Point(LOCALMAPSIZE * 3 / 4, LOCALMAPSIZE / 2 + 10) , Scalar(0));
+	*/
+
+
+	// Put coordinates in the wall vector
 	// col : x, row : y
 	uchar* data = local_map.data;
 	for (int i = 0; i < local_map.rows; i++)
@@ -84,27 +92,27 @@ int main()
 	// auto path = generator.findPath( { endingPoint.x, endingPoint.y }, { startingPoint.x, startingPoint.y });
 	auto path = generator.findPath(end_point, start_point );
 
+	is_first = true;
 	// Checking last node is needed
 	for (auto& coordinate : path)
 	{
-
-		if(numOfPoints == 0)
+		if(is_first)
 		{
 			cur_coord = coordinate;
-
-			numOfPoints++;
+			is_first = false;
 			continue;
 		}
-		//		cout << endl << "Error point" << endl;
+
 		prev_coord = cur_coord;
 		cur_coord = coordinate;
 
+		// direction checker
 		prev_direction = cur_direction;
 
-		// direction checker
+
 		cur_direction = direction_checker(prev_coord, cur_coord);
 
-		// if direction is changed, save prev_point in the vector
+		// If direction is changed, save prev_point in the vector
 		if(prev_direction != cur_direction)
 		{
 			// check prev point has collision to the wall
@@ -123,15 +131,16 @@ int main()
 			line(local_map, Point(prev_point.x, prev_point.y), Point(coordinate.x, coordinate.y), Scalar(100));
 		}
 	}
+	// Put last point in the modified_path
 	modified_path.push_back(end_point);
 
-	evenCheck = 0;
+	is_first = true;
 	for (auto& coordinate : modified_path)
 	{
-		if(evenCheck == 0)
+		if(is_first)
 		{
 			cur_point = coordinate;
-			evenCheck++;
+			is_first = false;
 			continue;
 		}
 		prev_point = cur_point;
@@ -156,30 +165,20 @@ int direction_checker(AStar::Vec2i& prev, AStar::Vec2i& cur)
 	int x = 0;
 	x = cur.x - prev.x;
 
-	if(x == 0)
-	{
-		return 0;
-	}
-	else if(x == 1)
-	{
-		return 1;
-	}
-	else
-	{
-		return -1;
-	}
-
-
-
-	return 0;
+	// up = 0, 1 = right, -1 = left
+	if(x == 0) return 0;
+	else if(x == 1) return 1;
+	else return -1;
 }
 
 bool collision_checker(AStar::Generator& gen, AStar::Vec2i& point)
 {
-	bool left_check = true;
-	bool right_check = true;
-	bool up_check = true;
-	bool down_check = true;
+	// collision accrued = true
+	bool left_check = false;
+	bool right_check = false;
+	bool up_check = false;
+	bool down_check = false;
+
 	AStar::Vec2i left = { -1, 0 };
 	AStar::Vec2i right = { 1, 0 };
 	AStar::Vec2i up = { 0, -1 };
